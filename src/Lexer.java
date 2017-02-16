@@ -4,7 +4,7 @@ import java.util.List;
 class Lexer {
 
     public enum TokenType {
-        TEXT, VARIABLE
+        TEXT, VARIABLE, IF_BEGIN, IF_END
     }
 
     public static class Token {
@@ -25,7 +25,15 @@ class Lexer {
     static List<Token> lex(String input) {
         List<Token> result = new ArrayList<>();
         for (int i = 0; i < input.length(); ) {
-            if (isStartOfVariable(input, i)) {
+            if (isStartOfIf(input, i)) {
+                String variable = getVariable(input, i);
+                i += variable.length() + 4;
+                result.add(new Token(TokenType.IF_BEGIN, variable.substring(1)));
+            } else if (isEndOfIf(input, i)) {
+                String variable = getVariable(input, i);
+                i += variable.length() + 4;
+                result.add(new Token(TokenType.IF_END, variable.substring(1)));
+            } else if (isStartOfVariable(input, i)) {
                 String variable = getVariable(input, i);
                 i += variable.length() + 4;
                 result.add(new Token(TokenType.VARIABLE, variable));
@@ -36,6 +44,14 @@ class Lexer {
             }
         }
         return result;
+    }
+
+    private static boolean isStartOfIf(String input, int i) {
+        return input.charAt(i) == '{' && i < input.length() - 2 && input.charAt(i + 1) == '{' && input.charAt(i + 2) == '#';
+    }
+
+    private static boolean isEndOfIf(String input, int i) {
+        return input.charAt(i) == '{' && i < input.length() - 2 && input.charAt(i + 1) == '{' && input.charAt(i + 2) == '/';
     }
 
     private static boolean isStartOfVariable(String input, int i) {
