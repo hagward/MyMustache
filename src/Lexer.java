@@ -4,7 +4,7 @@ import java.util.List;
 class Lexer {
 
     public enum TokenType {
-        TEXT, VARIABLE, IF_BEGIN, IF_END
+        IF_BEGIN, IF_END, TEXT, VARIABLE,
     }
 
     public static class Token {
@@ -19,6 +19,16 @@ class Lexer {
         @Override
         public String toString() {
             return String.format("%s(%s)", type, data);
+        }
+
+        public String toFormattedString() {
+            switch (type) {
+                case IF_BEGIN: return String.format("{{#%s}}", data);
+                case IF_END: return String.format("{{/%s}}", data);
+                case TEXT: return String.format("\"%s\"", data);
+                case VARIABLE: return String.format("{{%s}}", data);
+                default: return toString();
+            }
         }
     }
 

@@ -1,25 +1,39 @@
 import java.util.HashMap;
 import java.util.Map;
 
-public class Scope {
+class Scope {
 
+    private final String name;
     private final Scope parent;
     private final Map<String, Object> context;
 
-    public Scope(Scope parent, Map<String, Object> context) {
+    Scope(String name, Scope parent, Map<String, Object> context) {
+        this.name = name;
         this.parent = parent;
         this.context = context;
     }
 
-    public Scope getParent() {
+    String getName() {
+        return name;
+    }
+
+    Scope getParent() {
         return parent;
     }
 
-    public Map<String, Object> getContext() {
+    Map<String, Object> getContext() {
         return context;
     }
 
-    public Object get(String key) {
+    boolean isEnabled() {
+        return context != null;
+    }
+
+    Object get(String key) {
+        if (context == null) {
+            return null;
+        }
+
         Object value = context.get(key);
         Scope scope = parent;
 
@@ -31,7 +45,7 @@ public class Scope {
         return value;
     }
 
-    public Object getOrEmptyString(String key) {
+    Object getOrEmptyString(String key) {
         Object value = get(key);
         return value != null ? value : "";
     }

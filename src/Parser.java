@@ -1,52 +1,72 @@
-import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Stack;
 
 class Parser {
 
     private final List<Lexer.Token> tokens;
     private int i;
 
-    public Parser(List<Lexer.Token> tokens) {
+    Parser(List<Lexer.Token> tokens) {
         this.tokens = tokens;
         this.i = 0;
     }
 
-    public String parse(Map<String, Object> context) {
+    String parse(Map<String, Object> context) throws Exception {
         StringBuilder sb = new StringBuilder();
-        Scope scope = new Scope(null, context);
+        Scope scope = new Scope(null, null, context);
         parse(sb, scope);
         return sb.toString();
     }
 
-    private void parse(StringBuilder sb, Scope scope) {
+    private void parse(StringBuilder sb, Scope rootScope) throws Exception {
         Lexer.Token token = nextToken();
 
+        Stack<Scope> scopes = new Stack<>();
+        scopes.push(rootScope);
+
         while (token != null) {
+            Scope currentScope = scopes.peek();
+
             switch (token.type) {
-                case TEXT:
-                    sb.append(token.data);
-                    break;
-                case VARIABLE:
-                    sb.append(scope.getOrEmptyString(token.data));
-                    break;
-                case IF_BEGIN: {
-                    Object value = scope.get(token.data);
-                    if (value == null) {
-                        Lexer.Token nextToken = nextToken();
-                        while (nextToken != null && nextToken.type != Lexer.TokenType.IF_END && !Objects.equals(nextToken.data, token.data)) {
-                            nextToken = nextToken();
-                        }
-                    } else if (value instanceof Map) {
-                        Scope newScope = new Scope(scope, (Map<String, Object>) value);
-                        parse(sb, newScope);
+                case TEXT: {
+                    if (currentScope.isEnabled()) {
+                        sb.append(token.data);
                     }
                 }
                 break;
-                case IF_END: {
-                    return;
+
+                case VARIABLE: {
+                    if (currentScope.isEnabled()) {
+                        sb.append(currentScope.getOrEmptyString(token.data));
+                    }
                 }
+                break;
+
+                case IF_BEGIN: {
+                    Object value = currentScope.get(token.data);
+
+                    Map<String, Object> context;
+                    if (value == null) {
+                        context = null;
+                    } else if (value instanceof Map) {
+                        context = (Map) value;
+                    } else {
+                        context = new HashMap<>();
+                    }
+
+                    scopes.push(new Scope(token.data, currentScope, context));
+                }
+                break;
+
+                case IF_END: {
+                    Scope scopeToThrowAway = scopes.pop();
+                    if (scopes.isEmpty() || !scopeToThrowAway.getName().equals(token.data)) {
+                        throw new Exception("Unexpected IF_END");
+                    }
+                }
+                break;
             }
 
             token = nextToken();
@@ -58,6 +78,21 @@ class Parser {
             return tokens.get(i++);
         } else {
             return null;
+        }
+    }
+
+    public static class ParseException extends Exception {
+        private final String message;
+        private final Lexer.Token token;
+
+        public ParseException(String message, Lexer.Token token) {
+            this.message = message;
+            this.token = token;
+        }
+
+        @Override
+        public String getMessage() {
+            return String.format("Unexpected token %s: %s", token.toFormattedString(), message);
         }
     }
 }
