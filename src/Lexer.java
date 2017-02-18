@@ -20,16 +20,6 @@ class Lexer {
         public String toString() {
             return String.format("%s(%s)", type, data);
         }
-
-        public String toFormattedString() {
-            switch (type) {
-                case IF_BEGIN: return String.format("{{#%s}}", data);
-                case IF_END: return String.format("{{/%s}}", data);
-                case TEXT: return String.format("\"%s\"", data);
-                case VARIABLE: return String.format("{{%s}}", data);
-                default: return toString();
-            }
-        }
     }
 
     static List<Token> lex(String input) {

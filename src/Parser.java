@@ -63,7 +63,7 @@ class Parser {
                 case IF_END: {
                     Scope scopeToThrowAway = scopes.pop();
                     if (scopes.isEmpty() || !scopeToThrowAway.getName().equals(token.data)) {
-                        throw new Exception("Unexpected IF_END");
+                        throw new Exception(String.format("Unexpected IF_END: {{/%s}}", token.data));
                     }
                 }
                 break;
@@ -73,7 +73,7 @@ class Parser {
         }
 
         if (scopes.size() > 1) {
-            throw new Exception("Unclosed IF_BEGIN");
+            throw new Exception(String.format("Unclosed IF_BEGIN: {{#%s}}", scopes.peek().getName()));
         }
     }
 
@@ -82,21 +82,6 @@ class Parser {
             return tokens.get(i++);
         } else {
             return null;
-        }
-    }
-
-    public static class ParseException extends Exception {
-        private final String message;
-        private final Lexer.Token token;
-
-        public ParseException(String message, Lexer.Token token) {
-            this.message = message;
-            this.token = token;
-        }
-
-        @Override
-        public String getMessage() {
-            return String.format("Unexpected token %s: %s", token.toFormattedString(), message);
         }
     }
 }
