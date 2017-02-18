@@ -71,6 +71,10 @@ class Parser {
 
             token = nextToken();
         }
+
+        if (scopes.size() > 1) {
+            throw new Exception("Unclosed IF_BEGIN");
+        }
     }
 
     private Lexer.Token nextToken() {

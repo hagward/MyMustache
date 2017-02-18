@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.Map;
 
 class Scope {
@@ -17,11 +16,11 @@ class Scope {
         return name;
     }
 
-    Scope getParent() {
+    private Scope getParent() {
         return parent;
     }
 
-    Map<String, Object> getContext() {
+    private Map<String, Object> getContext() {
         return context;
     }
 
