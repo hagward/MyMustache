@@ -4,10 +4,12 @@ import java.util.List;
 class Lexer {
 
     public enum TokenType {
-        IF_BEGIN, // #
-        IF_END, // /
-        M_LEFT, // {{
-        M_RIGHT, // }}
+        IF_BEGIN,
+        IF_END,
+        M_LEFT,
+        M_LEFT_T,
+        M_RIGHT,
+        M_RIGHT_T,
         TEXT
     }
 
@@ -45,6 +47,12 @@ class Lexer {
                 i += 3;
             } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '/') {
                 tokens.add(new Token(TokenType.IF_END));
+                i += 3;
+            } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '{') {
+                tokens.add(new Token(TokenType.M_LEFT_T));
+                i += 3;
+            } else if (v[i] == '}' && i < v.length - 2 && v[i + 1] == '}' && v[i + 2] == '}') {
+                tokens.add(new Token(TokenType.M_RIGHT_T));
                 i += 3;
             } else if (v[i] == '{' && i < v.length - 1 && v[i + 1] == '{') {
                 tokens.add(new Token(TokenType.M_LEFT));
