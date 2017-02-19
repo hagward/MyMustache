@@ -37,14 +37,18 @@ class Parser {
                 }
                 break;
 
-                case VARIABLE: {
+                case M_LEFT: {
+                    token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
                         sb.append(currentScope.getOrEmptyString(token.data));
                     }
+                    expect(Lexer.TokenType.M_RIGHT);
                 }
                 break;
 
                 case IF_BEGIN: {
+                    token = expect(Lexer.TokenType.TEXT);
+
                     Object value = currentScope.get(token.data);
 
                     Map<String, Object> context;
@@ -57,16 +61,26 @@ class Parser {
                     }
 
                     scopes.push(new Scope(token.data, currentScope, context));
+
+                    expect(Lexer.TokenType.M_RIGHT);
                 }
                 break;
 
                 case IF_END: {
+                    token = expect(Lexer.TokenType.TEXT);
+
                     Scope scopeToThrowAway = scopes.pop();
                     if (scopes.isEmpty() || !scopeToThrowAway.getName().equals(token.data)) {
                         throw new Exception(String.format("Unexpected IF_END: {{/%s}}", token.data));
                     }
+
+                    expect(Lexer.TokenType.M_RIGHT);
                 }
                 break;
+
+                case M_RIGHT: {
+                    throw new Exception("Unexpected }}");
+                }
             }
 
             token = nextToken();
@@ -83,5 +97,17 @@ class Parser {
         } else {
             return null;
         }
+    }
+
+    private Lexer.Token expect(Lexer.TokenType type) throws Exception {
+        Lexer.Token nextToken = nextToken();
+
+        if (nextToken == null) {
+            throw new Exception(String.format("Unexpected end of input; expected %s", type));
+        } else if (nextToken.type != type) {
+            throw new Exception(String.format("Expected %s, got %s", type, nextToken.type));
+        }
+
+        return nextToken;
     }
 }

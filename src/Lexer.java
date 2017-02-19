@@ -4,12 +4,21 @@ import java.util.List;
 class Lexer {
 
     public enum TokenType {
-        IF_BEGIN, IF_END, TEXT, VARIABLE,
+        IF_BEGIN, // #
+        IF_END, // /
+        M_LEFT, // {{
+        M_RIGHT, // }}
+        TEXT
     }
 
     public static class Token {
         final TokenType type;
         final String data;
+
+        Token(TokenType type) {
+            this.type = type;
+            this.data = null;
+        }
 
         Token(TokenType type, String data) {
             this.type = type;
@@ -18,71 +27,42 @@ class Lexer {
 
         @Override
         public String toString() {
-            return String.format("%s(%s)", type, data);
+            if (data == null) {
+                return type.toString();
+            } else {
+                return String.format("%s(%s)", type, data);
+            }
         }
     }
 
     static List<Token> lex(String input) {
-        List<Token> result = new ArrayList<>();
-        for (int i = 0; i < input.length(); ) {
-            if (isStartOfIf(input, i)) {
-                String variable = getVariable(input, i);
-                i += variable.length() + 4;
-                result.add(new Token(TokenType.IF_BEGIN, variable.substring(1)));
-            } else if (isEndOfIf(input, i)) {
-                String variable = getVariable(input, i);
-                i += variable.length() + 4;
-                result.add(new Token(TokenType.IF_END, variable.substring(1)));
-            } else if (isStartOfVariable(input, i)) {
-                String variable = getVariable(input, i);
-                i += variable.length() + 4;
-                result.add(new Token(TokenType.VARIABLE, variable));
+        char[] v = input.toCharArray();
+        List<Token> tokens = new ArrayList<>();
+
+        for (int i = 0; i < v.length; ) {
+            if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '#') {
+                tokens.add(new Token(TokenType.IF_BEGIN));
+                i += 3;
+            } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '/') {
+                tokens.add(new Token(TokenType.IF_END));
+                i += 3;
+            } else if (v[i] == '{' && i < v.length - 1 && v[i + 1] == '{') {
+                tokens.add(new Token(TokenType.M_LEFT));
+                i += 2;
+            } else if (v[i] == '}' && i < v.length - 1 && v[i + 1] == '}') {
+                tokens.add(new Token(TokenType.M_RIGHT));
+                i += 2;
             } else {
-                String text = getText(input, i);
-                i += text.length();
-                result.add(new Token(TokenType.TEXT, text));
+                int j = i;
+                for (; i < v.length; i++) {
+                    if (i < v.length - 1 && ((v[i] == '{' && v[i+1] == '{') || (v[i] == '}' && v[i+1] == '}'))) {
+                        break;
+                    }
+                }
+                tokens.add(new Token(TokenType.TEXT, input.substring(j, i)));
             }
         }
-        return result;
-    }
 
-    private static boolean isStartOfIf(String input, int i) {
-        return input.charAt(i) == '{' && i < input.length() - 2 && input.charAt(i + 1) == '{' && input.charAt(i + 2) == '#';
-    }
-
-    private static boolean isEndOfIf(String input, int i) {
-        return input.charAt(i) == '{' && i < input.length() - 2 && input.charAt(i + 1) == '{' && input.charAt(i + 2) == '/';
-    }
-
-    private static boolean isStartOfVariable(String input, int i) {
-        return input.charAt(i) == '{' && i < input.length() - 1 && input.charAt(i + 1) == '{';
-    }
-
-    private static boolean isEndOfVariable(String input, int i) {
-        return input.charAt(i) == '}' && i < input.length() - 1 && input.charAt(i + 1) == '}';
-    }
-
-    private static String getVariable(String input, int i) {
-        int j = i;
-        for ( ; j < input.length(); ) {
-            if (isEndOfVariable(input, j)) {
-                return input.substring(i + 2, j);
-            } else {
-                j++;
-            }
-        }
-        throw new RuntimeException("Unclosed variable");
-    }
-
-    private static String getText(String input, int i) {
-        int j = i;
-        for ( ; j < input.length(); ) {
-            if (isStartOfVariable(input, j)) {
-                break;
-            } else {
-                j++;
-            }
-        }
-        return input.substring(i, j);
+        return tokens;
     }
 }
