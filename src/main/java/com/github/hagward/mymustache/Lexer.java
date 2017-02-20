@@ -1,3 +1,5 @@
+package com.github.hagward.mymustache;
+
 import java.util.ArrayList;
 import java.util.List;
 
