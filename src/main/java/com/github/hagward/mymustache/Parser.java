@@ -42,7 +42,8 @@ class Parser {
                 case M_LEFT: {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
-                        String s = String.valueOf(currentScope.getOrEmptyString(token.data));
+                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                        String s = String.valueOf(currentScope.getOrEmptyString(token.data.trim()));
                         sb.append(escapeHtml(s));
                     }
                     expect(Lexer.TokenType.M_RIGHT);
@@ -52,7 +53,8 @@ class Parser {
                 case M_LEFT_T: {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
-                        sb.append(currentScope.getOrEmptyString(token.data));
+                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                        sb.append(currentScope.getOrEmptyString(token.data.trim()));
                     }
                     expect(Lexer.TokenType.M_RIGHT_T);
                 }
