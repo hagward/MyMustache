@@ -49,6 +49,15 @@ class Parser {
                 }
                 break;
 
+                case M_LEFT_T: {
+                    token = expect(Lexer.TokenType.TEXT);
+                    if (currentScope.isEnabled()) {
+                        sb.append(currentScope.getOrEmptyString(token.data));
+                    }
+                    expect(Lexer.TokenType.M_RIGHT_T);
+                }
+                break;
+
                 case IF_BEGIN: {
                     token = expect(Lexer.TokenType.TEXT);
 
