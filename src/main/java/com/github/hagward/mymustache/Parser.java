@@ -42,7 +42,8 @@ class Parser {
                 case M_LEFT: {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
-                        sb.append(currentScope.getOrEmptyString(token.data));
+                        String s = String.valueOf(currentScope.getOrEmptyString(token.data));
+                        sb.append(escapeHtml(s));
                     }
                     expect(Lexer.TokenType.M_RIGHT);
                 }
@@ -111,5 +112,28 @@ class Parser {
         }
 
         return nextToken;
+    }
+
+    private String escapeHtml(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            switch (s.charAt(i)) {
+                case '&':
+                    sb.append("&amp;");
+                    break;
+                case '"':
+                    sb.append("&quot;");
+                    break;
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                default:
+                    sb.append(s.charAt(i));
+            }
+        }
+        return sb.toString();
     }
 }
