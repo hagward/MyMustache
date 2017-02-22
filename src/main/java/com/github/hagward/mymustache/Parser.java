@@ -43,8 +43,12 @@ class Parser {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
                         //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        String s = String.valueOf(currentScope.getOrEmptyString(token.data.trim()));
-                        sb.append(escapeHtml(s));
+                        Object value = currentScope.getOrEmptyString(token.data.trim());
+                        if (value instanceof Double) {
+                            sb.append(removeTrailingZeros(String.valueOf(value)));
+                        } else {
+                            sb.append(escapeHtml(String.valueOf(value)));
+                        }
                     }
                     expect(Lexer.TokenType.M_RIGHT);
                 }
@@ -54,7 +58,12 @@ class Parser {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
                         //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        sb.append(currentScope.getOrEmptyString(token.data.trim()));
+                        Object value = currentScope.getOrEmptyString(token.data.trim());
+                        if (value instanceof Double) {
+                            sb.append(removeTrailingZeros(String.valueOf(value)));
+                        } else {
+                            sb.append(String.valueOf(value));
+                        }
                     }
                     expect(Lexer.TokenType.M_RIGHT_T);
                 }
@@ -64,7 +73,12 @@ class Parser {
                     token = expect(Lexer.TokenType.TEXT);
                     if (currentScope.isEnabled()) {
                         //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        sb.append(currentScope.getOrEmptyString(token.data.trim()));
+                        Object value = currentScope.getOrEmptyString(token.data.trim());
+                        if (value instanceof Double) {
+                            sb.append(removeTrailingZeros(String.valueOf(value)));
+                        } else {
+                            sb.append(String.valueOf(value));
+                        }
                     }
                     expect(Lexer.TokenType.M_RIGHT);
                 }
@@ -113,6 +127,22 @@ class Parser {
         if (scopes.size() > 1) {
             throw new Exception(String.format("Unclosed IF_BEGIN: {{#%s}}", scopes.peek().getName()));
         }
+    }
+
+    private String removeTrailingZeros(String s) {
+        int a = s.indexOf('.');
+
+        if (a == -1) {
+            return s;
+        }
+
+        for (int i = s.length() - 1; i > a; i--) {
+            if (s.charAt(i) != '0') {
+                return s.substring(0, i + 1);
+            }
+        }
+
+        return s.substring(0, a);
     }
 
     private Lexer.Token nextToken() {
