@@ -60,6 +60,16 @@ class Parser {
                 }
                 break;
 
+                case M_AMP: {
+                    token = expect(Lexer.TokenType.TEXT);
+                    if (currentScope.isEnabled()) {
+                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                        sb.append(currentScope.getOrEmptyString(token.data.trim()));
+                    }
+                    expect(Lexer.TokenType.M_RIGHT);
+                }
+                break;
+
                 case IF_BEGIN: {
                     token = expect(Lexer.TokenType.TEXT);
 
