@@ -26,10 +26,6 @@ class Scope {
         return context;
     }
 
-    boolean isEnabled() {
-        return context != null;
-    }
-
     Object get(String key) {
         if (context == null) {
             return null;

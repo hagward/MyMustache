@@ -33,53 +33,51 @@ class Parser {
 
             switch (token.type) {
                 case TEXT: {
-                    if (currentScope.isEnabled()) {
-                        sb.append(token.data);
-                    }
+                    sb.append(token.data);
                 }
                 break;
 
                 case M_LEFT: {
                     token = expect(Lexer.TokenType.TEXT);
-                    if (currentScope.isEnabled()) {
-                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        Object value = currentScope.getOrEmptyString(token.data.trim());
-                        if (value instanceof Double) {
-                            sb.append(removeTrailingZeros(String.valueOf(value)));
-                        } else {
-                            sb.append(escapeHtml(String.valueOf(value)));
-                        }
+
+                    //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                    Object value = currentScope.getOrEmptyString(token.data.trim());
+                    if (value instanceof Double) {
+                        sb.append(removeTrailingZeros(String.valueOf(value)));
+                    } else {
+                        sb.append(escapeHtml(String.valueOf(value)));
                     }
+
                     expect(Lexer.TokenType.M_RIGHT);
                 }
                 break;
 
                 case M_LEFT_T: {
                     token = expect(Lexer.TokenType.TEXT);
-                    if (currentScope.isEnabled()) {
-                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        Object value = currentScope.getOrEmptyString(token.data.trim());
-                        if (value instanceof Double) {
-                            sb.append(removeTrailingZeros(String.valueOf(value)));
-                        } else {
-                            sb.append(String.valueOf(value));
-                        }
+
+                    //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                    Object value = currentScope.getOrEmptyString(token.data.trim());
+                    if (value instanceof Double) {
+                        sb.append(removeTrailingZeros(String.valueOf(value)));
+                    } else {
+                        sb.append(String.valueOf(value));
                     }
+
                     expect(Lexer.TokenType.M_RIGHT_T);
                 }
                 break;
 
                 case M_AMP: {
                     token = expect(Lexer.TokenType.TEXT);
-                    if (currentScope.isEnabled()) {
-                        //noinspection ConstantConditions: TEXT tokens should always be created with data.
-                        Object value = currentScope.getOrEmptyString(token.data.trim());
-                        if (value instanceof Double) {
-                            sb.append(removeTrailingZeros(String.valueOf(value)));
-                        } else {
-                            sb.append(String.valueOf(value));
-                        }
+
+                    //noinspection ConstantConditions: TEXT tokens should always be created with data.
+                    Object value = currentScope.getOrEmptyString(token.data.trim());
+                    if (value instanceof Double) {
+                        sb.append(removeTrailingZeros(String.valueOf(value)));
+                    } else {
+                        sb.append(String.valueOf(value));
                     }
+
                     expect(Lexer.TokenType.M_RIGHT);
                 }
                 break;
