@@ -87,16 +87,14 @@ class Parser {
 
                     Object value = currentScope.get(token.data);
 
-                    Map<String, Object> context;
-                    if (value == null) {
-                        context = null;
-                    } else if (value instanceof Map) {
-                        context = (Map) value;
+                    Object context;
+                    if (value == null || value instanceof Map) {
+                        context = value;
                     } else {
                         context = new HashMap<>();
                     }
 
-                    scopes.push(new Scope(token.data, currentScope, context));
+                    scopes.push(new Scope(token.data, currentScope, (Map<String, Object>) context));
 
                     expect(Lexer.TokenType.M_RIGHT);
                 }
