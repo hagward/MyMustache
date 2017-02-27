@@ -35,12 +35,21 @@ class Scope {
             return null;
         }
 
-        Object value = context.get(key);
+        String[] parts = key.split("\\.");
+
+        Object value = context.get(parts[0]);
         Scope scope = parent;
 
         while (value == null && scope != null) {
-            value = scope.getContext().get(key);
+            value = scope.getContext().get(parts[0]);
             scope = scope.getParent();
+        }
+
+        for (int i = 1; i < parts.length; i++) {
+            if (!(value instanceof Map)) {
+                return null;
+            }
+            value = ((Map) value).get(parts[i]);
         }
 
         return value;
