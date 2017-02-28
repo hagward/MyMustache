@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("WeakerAccess")
 @RunWith(Parameterized.class)
@@ -23,24 +25,44 @@ public class InterpolationTest {
         private List<Map<String, Object>> tests;
     }
 
+    private static Gson gson = new Gson();
+
     @Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() throws FileNotFoundException {
-        Gson gson = new Gson();
-        Spec spec = gson.fromJson(new FileReader("src/test/java/com/github/hagward/mymustache/interpolation.json"), Spec.class);
-
         List<Object[]> params = new ArrayList<>();
 
-        for (Map<String, Object> test : spec.tests) {
-            params.add(new Object[] {
-                    test.get("name"),
-                    test.get("desc"),
-                    test.get("data"),
-                    test.get("template"),
-                    test.get("expected")
-            });
-        }
+        Stream.of(
+                "src/test/java/com/github/hagward/mymustache/comments.json",
+                "src/test/java/com/github/hagward/mymustache/delimiters.json",
+                "src/test/java/com/github/hagward/mymustache/interpolation.json",
+                "src/test/java/com/github/hagward/mymustache/inverted.json",
+                "src/test/java/com/github/hagward/mymustache/partials.json",
+                "src/test/java/com/github/hagward/mymustache/sections.json")
+                .map(InterpolationTest::parseSpec)
+                .forEach(spec -> params.addAll(createTests(spec)));
 
         return params;
+    }
+
+    private static List<Object[]> createTests(Spec spec) {
+        return spec.tests.stream()
+                .map(test -> new Object[] {
+                        test.get("name"),
+                        test.get("desc"),
+                        test.get("data"),
+                        test.get("template"),
+                        test.get("expected")
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static Spec parseSpec(String fileName) {
+        try {
+            return gson.fromJson(new FileReader(fileName), Spec.class);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return new Spec();
     }
 
     @Parameter
