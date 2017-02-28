@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings("WeakerAccess")
 @RunWith(Parameterized.class)
-public class InterpolationTest {
+public class SpecTest {
 
     private static class Spec {
         private List<Map<String, Object>> tests;
@@ -38,7 +38,7 @@ public class InterpolationTest {
                 "src/test/java/com/github/hagward/mymustache/inverted.json",
                 "src/test/java/com/github/hagward/mymustache/partials.json",
                 "src/test/java/com/github/hagward/mymustache/sections.json")
-                .map(InterpolationTest::parseSpec)
+                .map(SpecTest::parseSpec)
                 .forEach(spec -> params.addAll(createTests(spec)));
 
         return params;
