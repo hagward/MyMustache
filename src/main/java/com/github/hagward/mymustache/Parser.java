@@ -1,9 +1,6 @@
 package com.github.hagward.mymustache;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 class Parser {
 
@@ -144,7 +141,7 @@ class Parser {
     }
 
     private boolean isFalsey(Object value) {
-        return value == null || value.equals(false) || value.equals(0) || value.equals("");
+        return value == null || value.equals(false) || value.equals(0) || value.equals("") || value.equals(Collections.emptyList());
     }
 
     private String removeTrailingZeros(String s) {
