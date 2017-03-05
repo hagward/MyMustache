@@ -7,6 +7,7 @@ class Lexer {
 
     public enum TokenType {
         IF_BEGIN,
+        IF_BEGIN_INV,
         IF_END,
         M_LEFT,
         M_LEFT_T,
@@ -47,6 +48,9 @@ class Lexer {
         for (int i = 0; i < v.length; ) {
             if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '#') {
                 tokens.add(new Token(TokenType.IF_BEGIN));
+                i += 3;
+            } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '^') {
+                tokens.add(new Token(TokenType.IF_BEGIN_INV));
                 i += 3;
             } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '/') {
                 tokens.add(new Token(TokenType.IF_END));

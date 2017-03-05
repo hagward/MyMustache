@@ -84,7 +84,10 @@ class Parser {
                 }
                 break;
 
-                case IF_BEGIN: {
+                case IF_BEGIN:
+                case IF_BEGIN_INV: {
+                    Lexer.TokenType tokenType = token.type;
+
                     token = expect(Lexer.TokenType.TEXT);
 
                     assert token.data != null;
@@ -93,7 +96,10 @@ class Parser {
                     Object value = currentScope.get(key);
 
                     Object context;
-                    if (isFalsey(value)) {
+                    boolean falsey = isFalsey(value);
+                    if ((falsey && tokenType == Lexer.TokenType.IF_BEGIN) ||
+                            (!falsey && tokenType == Lexer.TokenType.IF_BEGIN_INV)) {
+
                         context = null;
                     } else if (value instanceof Map) {
                         context = value;
