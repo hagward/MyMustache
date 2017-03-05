@@ -87,7 +87,10 @@ class Parser {
                 case IF_BEGIN: {
                     token = expect(Lexer.TokenType.TEXT);
 
-                    Object value = currentScope.get(token.data);
+                    assert token.data != null;
+
+                    String key = token.data.trim();
+                    Object value = currentScope.get(key);
 
                     Object context;
                     if (isFalsey(value)) {
@@ -98,7 +101,8 @@ class Parser {
                         context = new HashMap<>();
                     }
 
-                    scopes.push(new Scope(token.data, currentScope, (Map<String, Object>) context));
+                    //noinspection unchecked
+                    scopes.push(new Scope(key, currentScope, (Map<String, Object>) context));
 
                     expect(Lexer.TokenType.M_RIGHT);
                 }
@@ -107,9 +111,13 @@ class Parser {
                 case IF_END: {
                     token = expect(Lexer.TokenType.TEXT);
 
+                    assert token.data != null;
+
+                    String key = token.data.trim();
+
                     Scope scopeToThrowAway = scopes.pop();
-                    if (scopes.isEmpty() || !scopeToThrowAway.getName().equals(token.data)) {
-                        throw new Exception(String.format("Unexpected IF_END: {{/%s}}", token.data));
+                    if (scopes.isEmpty() || !scopeToThrowAway.getName().equals(key)) {
+                        throw new Exception(String.format("Unexpected IF_END: {{/%s}}", key));
                     }
 
                     expect(Lexer.TokenType.M_RIGHT);
