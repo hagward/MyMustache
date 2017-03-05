@@ -8,6 +8,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -22,12 +23,13 @@ import java.util.stream.Stream;
 public class SpecTest {
 
     private static class Spec {
+        private String name;
         private List<Map<String, Object>> tests;
     }
 
     private static Gson gson = new Gson();
 
-    @Parameters(name = "{index}: {0}")
+    @Parameters(name = "{index}: {0}: {1}")
     public static Collection<Object[]> data() throws FileNotFoundException {
         List<Object[]> params = new ArrayList<>();
 
@@ -47,6 +49,7 @@ public class SpecTest {
     private static List<Object[]> createTests(Spec spec) {
         return spec.tests.stream()
                 .map(test -> new Object[] {
+                        spec.name,
                         test.get("name"),
                         test.get("desc"),
                         test.get("data"),
@@ -58,7 +61,10 @@ public class SpecTest {
 
     private static Spec parseSpec(String fileName) {
         try {
-            return gson.fromJson(new FileReader(fileName), Spec.class);
+            File file = new File(fileName);
+            Spec spec = gson.fromJson(new FileReader(file), Spec.class);
+            spec.name = file.getName().split("\\.")[0];
+            return spec;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -66,18 +72,21 @@ public class SpecTest {
     }
 
     @Parameter
-    public String name;
+    public String specName;
 
     @Parameter(1)
-    public String description;
+    public String name;
 
     @Parameter(2)
-    public Map<String, Object> data;
+    public String description;
 
     @Parameter(3)
-    public String template;
+    public Map<String, Object> data;
 
     @Parameter(4)
+    public String template;
+
+    @Parameter(5)
     public String expected;
 
     @Test
