@@ -33,7 +33,9 @@ class Parser {
 
             switch (token.type) {
                 case TEXT: {
-                    sb.append(token.data);
+                    if (currentScope.isEnabled()) {
+                        sb.append(token.data);
+                    }
                 }
                 break;
 
@@ -88,7 +90,9 @@ class Parser {
                     Object value = currentScope.get(token.data);
 
                     Object context;
-                    if (value == null || value instanceof Map) {
+                    if (isFalsey(value)) {
+                        context = null;
+                    } else if (value instanceof Map) {
                         context = value;
                     } else {
                         context = new HashMap<>();
@@ -123,6 +127,10 @@ class Parser {
         if (scopes.size() > 1) {
             throw new Exception(String.format("Unclosed IF_BEGIN: {{#%s}}", scopes.peek().getName()));
         }
+    }
+
+    private boolean isFalsey(Object value) {
+        return value == null || value.equals(false) || value.equals(0) || value.equals("");
     }
 
     private String removeTrailingZeros(String s) {
