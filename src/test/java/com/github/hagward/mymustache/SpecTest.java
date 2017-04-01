@@ -91,7 +91,13 @@ public class SpecTest {
 
     @Test
     public void test() throws Exception {
-        Parser parser = new Parser(Lexer.lex(template));
-        Assert.assertEquals(description, expected, parser.parse(data));
+        Lexer lexer = new Lexer();
+        List<Lexer.Token> tokens = lexer.lex(template);
+        Parser parser = new Parser(tokens);
+        String actual = parser.parse(data);
+
+        System.out.println(tokens);
+
+        Assert.assertEquals(description, expected, actual);
     }
 }

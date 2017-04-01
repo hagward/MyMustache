@@ -41,9 +41,11 @@ class Lexer {
         }
     }
 
-    static List<Token> lex(String input) {
+    private List<Token> tokens;
+
+    List<Token> lex(String input) {
+        tokens = new ArrayList<>();
         char[] v = input.toCharArray();
-        List<Token> tokens = new ArrayList<>();
 
         for (int i = 0; i < v.length; ) {
             if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '#') {
@@ -71,6 +73,16 @@ class Lexer {
                 tokens.add(new Token(TokenType.M_RIGHT));
                 i += 2;
             } else {
+                Token oldToken = peekBack(2);
+                if (oldToken != null && (oldToken.type == TokenType.IF_BEGIN ||
+                                         oldToken.type == TokenType.IF_BEGIN_INV ||
+                                         oldToken.type == TokenType.IF_END)) {
+
+                    while (i < v.length && (v[i] == '\n' || v[i] == '\r')) {
+                        i++;
+                    }
+                }
+
                 int j = i;
                 for (; i < v.length; i++) {
                     if (i < v.length - 1 && ((v[i] == '{' && v[i+1] == '{') || (v[i] == '}' && v[i+1] == '}'))) {
@@ -82,5 +94,10 @@ class Lexer {
         }
 
         return tokens;
+    }
+
+    private Token peekBack(int steps) {
+        int i = tokens.size() - steps - 1;
+        return (i >= 0) ? tokens.get(i) : null;
     }
 }
