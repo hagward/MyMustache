@@ -81,6 +81,13 @@ class Parser {
                 }
                 break;
 
+                case M_COMMENT: {
+                    while (token != null && token.type != Lexer.TokenType.M_RIGHT) {
+                        token = nextToken();
+                    }
+                }
+                break;
+
                 case IF_BEGIN:
                 case IF_BEGIN_INV: {
                     Lexer.TokenType tokenType = token.type;

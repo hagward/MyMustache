@@ -14,6 +14,7 @@ class Lexer {
         M_RIGHT,
         M_RIGHT_T,
         M_AMP,
+        M_COMMENT,
         TEXT
     }
 
@@ -62,6 +63,9 @@ class Lexer {
                 i += 3;
             } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '{') {
                 tokens.add(new Token(TokenType.M_LEFT_T));
+                i += 3;
+            } else if (v[i] == '{' && i < v.length - 2 && v[i + 1] == '{' && v[i + 2] == '!') {
+                tokens.add(new Token(TokenType.M_COMMENT));
                 i += 3;
             } else if (v[i] == '}' && i < v.length - 2 && v[i + 1] == '}' && v[i + 2] == '}') {
                 tokens.add(new Token(TokenType.M_RIGHT_T));
